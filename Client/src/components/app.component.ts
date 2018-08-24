@@ -20,5 +20,10 @@ export class AppComponent implements OnInit {
     {
         console.log(response);
     });
+
+    this.networkService.getHeverInfo().subscribe(response=>
+      {
+          console.log(response);
+      });
   }
 }
