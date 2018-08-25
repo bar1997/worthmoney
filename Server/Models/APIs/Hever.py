@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Models.Response import Response
 from flask import Blueprint
 import requests
@@ -7,6 +8,7 @@ BLUEPRINT = Blueprint(__name__, '', url_prefix='/Hever')
 
 class Hever(object):
     HEVER_LOGIN_URL = 'HTTPS://hvr.co.il/signin.aspx'
+    HEVER_HOME_PAGE = r'https://www.hvr.co.il/home_page.aspx?page=hvr_home'
 
     def __init__(self):
         raise NotImplementedError('')
@@ -19,32 +21,41 @@ class Hever(object):
     @staticmethod
     def write_file(text):
         with open('C:\\Users\\Bar\\AppData\\Local\\Temp\\temp.html', 'wb') as file_handle:
-            file_handle.write(text.encode('cp1255'))
+            file_handle.write(text)
+
+    @staticmethod
+    def is_logged_in(content):
+        x = u'שגויים'
+        return x not in content.decode('cp1255')
 
     @staticmethod
     def login(user_name, password):
         data = {'tz': user_name,
                 'password': password,
                 'oMode': 'login',
-                'tmpl_filename': 'signin',
-                'reffer': '',
-                'redirect': 'https%3A%2F%2Fwww.hvr.co.il%2Fhome_page.aspx%3Fpage%3Dhvr_home',
-                'cn': '17818875500',
-                'emailRestore': ''}
+                'reffer': ''}
+
         headers = {'Referer': 'https://www.hvr.co.il/signin.aspx',
+                   'Host': 'www.hvr.co.il',
                    'Content-Type': 'application/x-www-form-urlencoded',
-                   'Origin': 'HTTPS://www.hvr.co.il',
+                   'Origin': 'https://www.hvr.co.il',
                    'Upgrade-Insecure-Requests': '1',
-                   'Cookie': 'zoom = 1',
-                   'ASP.NET_SessionId': 'fstf5zuychovulr2hl52xvu5',
-                   'init_code': '9142309255',
-                   'tid': '4230925',
-                   'bn': '1781887550, 161007234711807636'
-                   }
+                   'Connection': 'keep-alive',
+                   'Cookie': 'bn=800262434,552569166741807636; ASP.NET_SessionId=5wt0goq5nazngz2o4ua35cuh; zoom=1',
+                   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+
         with requests.Session() as session:
-            text = session.post(Hever.HEVER_LOGIN_URL, data=data, headers=headers, verify=True).text
-            Hever.write_file(text)
+            response = session.post(Hever.HEVER_LOGIN_URL, data=data, headers=headers, verify=True)
+            if Hever.is_logged_in(response.content):
+                print 'Connected to hever'
+                headers = {'Cookie': 'zoom=1; ASP.NET_SessionId=fstf5zuychovulr2hl52xvu5; init_code=9142309255; tid=4230925; home_page=hvr_home; bn=; email=Bar.maor.1997@gmail.com; userfullname=%u05D1%u05E8%20%u05DE%u05D0%u05D5%u05E8; logout=signin.aspx' }
+                response = session.get(Hever.HEVER_HOME_PAGE, headers=headers)
+                text = response.text.encode('latin1').decode('cp1255')
+                Hever.write_file(text.encode('cp1255'))
+            else:
+                print 'Couldnt connect'
+
 
     @staticmethod
     def test():
-        Hever.login('208418632', '28051997')
+        Hever.login('', '')
