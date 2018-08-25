@@ -96,7 +96,7 @@ internal/
 **/.vs
 **/.vscode
 !**/.vscode/tasks.json
-!tests/cases/projects/projectOption/**/node_modules
+
 !tests/cases/projects/NodeModulesSearch/**/*
 !tests/baselines/reference/project/nodeModules*/**/*
 .idea
@@ -104,7 +104,6 @@ yarn.lock
 yarn-error.log
 .parallelperf.*
 tests/cases/user/*/package-lock.json
-tests/cases/user/*/node_modules/
 tests/cases/user/*/**/*.js
 tests/cases/user/*/**/*.js.map
 tests/cases/user/*/**/*.d.ts
