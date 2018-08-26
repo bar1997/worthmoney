@@ -30,45 +30,53 @@ class Hever(object):
         return x not in content.decode('cp1255')
 
     @staticmethod
+    def parse_cookies_to_string(cookies):
+        sum = ''
+
+        for key in cookies.keys():
+            sum += key + '=' + cookies[key] + '&'
+
+        sum = sum[:-1]
+        return sum
+
+    @staticmethod
     def login(user_name, password, session, cookies):
-        data = {'tz': user_name,
-                'password': password,
-                'oMode': 'login',
-                'reffer': ''}
+        data = {'tz': user_name, 'password': password, 'oMode': 'login', 'reffer': ''}
 
-        headers = {'Referer': 'https://www.hvr.co.il/signin.aspx',
-                   'Host': 'www.hvr.co.il',
-                   'Content-Type': 'application/x-www-form-urlencoded',
-                   'Origin': 'https://www.hvr.co.il',
-                   'Upgrade-Insecure-Requests': '1',
-                   'Connection': 'keep-alive',
-                   'Cookie': cookies,
-                   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'}
+        headers = {
+            'Referer': 'https://www.hvr.co.il/signin.aspx',
+            'Host': 'www.hvr.co.il',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Origin': 'https://www.hvr.co.il',
+            'Upgrade-Insecure-Requests': '1',
+            'Connection': 'keep-alive',
+            'Cookie': Hever.parse_cookies_to_string(cookies)}
 
-        print headers
         response = session.post(Hever.HEVER_LOGIN_URL, data=data, headers=headers, verify=True)
-        print response.content
-        print response.text
-        print response.status_code
-        '''
         if Hever.is_logged_in(response.content):
             print 'Connected to hever'
-            headers = {'Cookie': 'zoom=1; ASP.NET_SessionId=fstf5zuychovulr2hl52xvu5; init_code=9142309255; tid=4230925; home_page=hvr_home; bn=; email=Bar.maor.1997@gmail.com; userfullname=%u05D1%u05E8%20%u05DE%u05D0%u05D5%u05E8; logout=signin.aspx' }
+            print response.cookies.get_dict()
+            temp = session.cookies.get_dict()
+            temp['bn'] = cookies['bn']
+            headers['Cookies'] = Hever.parse_cookies_to_string(temp)
+            headers['Referer'] = 'https://www.hvr.co.il/signin.aspx'
+            print headers['Cookies']
             response = session.get(Hever.HEVER_HOME_PAGE, headers=headers)
-            text = response.text.encode('latin1').decode('cp1255')
+
+            text = response.text
             Hever.write_file(text.encode('cp1255'))
         else:
             print 'Couldnt connect'
-        '''
 
     @staticmethod
     def get_cookies(session):
         session.get(Hever.HEVER_LOGIN_URL)
-        return session.cookies.get_dict()
+        temp = session.cookies.get_dict()
+
+        return temp
 
     @staticmethod
     def test():
         session = requests.Session()
-        cookies = json.dumps(Hever.get_cookies(session)).lstrip('{').rstrip('}').replace('"', '')
-        print cookies
+        cookies = Hever.get_cookies(session)
         Hever.login('', '', session, cookies)
