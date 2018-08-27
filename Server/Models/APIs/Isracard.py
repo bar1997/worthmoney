@@ -15,21 +15,17 @@ class Isracard(object):
     def __init__(self):
         raise NotImplementedError('')
 
-    #@staticmethod
-    #@BLUEPRINT.route('/GetHeverInfo', methods=['POST'])
-    #def get_isracard_info():
-    #    return Response.succeed_response(None)
-
     @staticmethod
-    def write_file(text):
-        with open('C:\\Users\\Bar\\AppData\\Local\\Temp\\temp.html', 'wb') as file_handle:
-            file_handle.write(text)
+    @BLUEPRINT.route('/GetHeverInfo', methods=['POST'])
+    def get_isracard_info():
+       return Response.succeed_response(None)
 
     @staticmethod
     def normalize_text(text):
         normalized = unicodedata.normalize('NFKD', text)
         no_nikkud = ''.join([c for c in normalized if not unicodedata.combining(c)])
         return no_nikkud
+
 
     @staticmethod
     def test():
@@ -39,51 +35,51 @@ class Isracard(object):
         page_number = 1
         no_more_results = False
 
+        suggested_word = None
+
         while not no_more_results:
             with requests.Session() as session:
                 response = session.get(url=Isracard.ISRACARD_SEARCH_WORD.format(user_input, page_number))
                 data = json.loads(ast.literal_eval(response.content))
-                no_more_results = data['SearchResults'] is None
 
-                if not no_more_results:
-                    all_items.append(data['SearchResults']['items'])
+                if 'SearchResults' in data.keys():
+                    no_more_results = data['SearchResults'] is None
+                    if not no_more_results:
+                        should_be_correct = data['SearchResults']['spelling'] is not None
+                        if should_be_correct:
+                            suggested_word = data['SearchResults']['spelling']['correctedQuery'].encode('utf-8')
+                            print str.format('Corrected to {0}', user_input)
 
-                    print str.format('Found {0} items on page {1}', len(data['SearchResults']['items']), page_number)
+                        if data['SearchResults']['items'] is not None:
+                            all_items.append(data['SearchResults']['items'])
+                            print data['SearchResults']['items']
+                            print str.format('Found {0} items on page {1}', len(data['SearchResults']['items']), page_number)
+                else:
+                    no_more_results = True
 
             page_number += 1
 
         filtered = 0
         for items in all_items:
             for item in items:
-                try:
-                    description = Isracard.normalize_text(item['snippet'])
-                    title = Isracard.normalize_text(item['title']).encode('utf-8')
-                    link = Isracard.normalize_text(item['link']).encode('utf-8')
+                description = Isracard.normalize_text(item['snippet']).encode('utf-8')
+                title = Isracard.normalize_text(item['title']).encode('utf-8')
+                link = Isracard.normalize_text(item['link']).encode('utf-8')
 
-                    # print str.format('In title ({0}): {1}', title, user_input in title)
-
-                    import chardet
-                    print chardet.detect(user_input)['encoding']
-                    #print chardet.detect(description)['encoding']
-                    print description.decode('utf-8')
-
-
-                    print str.format('In description ({0}): {1}', description, user_input in description.encode('utf-8').encode('latin1'))
-                    print ''
-
-                    '''
-                    if (user_input in description or user_input in title) and 'ההטבה הסתיימה' not in title:
+                if suggested_word is None:
+                    if user_input in title or user_input in description:
                         print 'Description: ' + description
                         print 'Title: ' + title
                         print 'Link: ' + link
                         print '---'
                         filtered += 1
-                    '''
-
-                except Exception as daniella:
-                    print str(daniella)
-                    import sys
-                    sys.exit(-1)
+                else:
+                    if (suggested_word in title) or (suggested_word in description) or (user_input in title) or (user_input in description):
+                        print 'Description: ' + description
+                        print 'Title: ' + title
+                        print 'Link: ' + link
+                        print '---'
+                        filtered += 1
 
         print str.format('Found {0} results', filtered)
 
