@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
+import unicodedata
 import ast
 import requests
 from Models.Response import Response
@@ -25,6 +26,12 @@ class Isracard(object):
             file_handle.write(text)
 
     @staticmethod
+    def normalize_text(text):
+        normalized = unicodedata.normalize('NFKD', text)
+        no_nikkud = ''.join([c for c in normalized if not unicodedata.combining(c)])
+        return no_nikkud
+
+    @staticmethod
     def test():
         user_input = raw_input('Search:')
 
@@ -41,21 +48,42 @@ class Isracard(object):
                 if not no_more_results:
                     all_items.append(data['SearchResults']['items'])
 
+                    print str.format('Found {0} items on page {1}', len(data['SearchResults']['items']), page_number)
+
             page_number += 1
 
         filtered = 0
         for items in all_items:
             for item in items:
-                description = item['htmlSnippet'].encode('utf-8')
-                title = item['htmlTitle'].encode('utf-8')
-                link = item['link'].encode('utf-8')
+                try:
+                    description = Isracard.normalize_text(item['snippet'])
+                    title = Isracard.normalize_text(item['title']).encode('utf-8')
+                    link = Isracard.normalize_text(item['link']).encode('utf-8')
 
-                if user_input in description or user_input in title:
-                    print 'Description: ' + description
-                    print 'Title: ' + title
-                    print 'Link: ' + link
-                    print '---'
-                    filtered += 1
+                    # print str.format('In title ({0}): {1}', title, user_input in title)
+
+                    import chardet
+                    print chardet.detect(user_input)['encoding']
+                    #print chardet.detect(description)['encoding']
+                    print description.decode('utf-8')
+
+
+                    print str.format('In description ({0}): {1}', description, user_input in description.encode('utf-8').encode('latin1'))
+                    print ''
+
+                    '''
+                    if (user_input in description or user_input in title) and 'ההטבה הסתיימה' not in title:
+                        print 'Description: ' + description
+                        print 'Title: ' + title
+                        print 'Link: ' + link
+                        print '---'
+                        filtered += 1
+                    '''
+
+                except Exception as daniella:
+                    print str(daniella)
+                    import sys
+                    sys.exit(-1)
 
         print str.format('Found {0} results', filtered)
 
