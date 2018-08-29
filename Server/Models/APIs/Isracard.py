@@ -27,7 +27,7 @@ class Isracard(object):
         return no_nikkud
 
     @staticmethod
-    def is_valid_search_results(search_results):
+    def __is_valid_search_results(search_results):
         if 'SearchResults' not in search_results:
             return False
 
@@ -40,14 +40,14 @@ class Isracard(object):
         return True
 
     @staticmethod
-    def used_spelling(data):
+    def __used_spelling(data):
         try:
             return data['SearchResults']['spelling'] is not None
         except:
             return False
 
     @staticmethod
-    def get_items_by_search_word(search_word):
+    def __get_items_by_search_word(search_word):
         items = []
         page_number = 1
         no_more_results = False
@@ -57,18 +57,16 @@ class Isracard(object):
                 response = session.get(url=Isracard.ISRACARD_SEARCH_WORD.format(search_word, page_number))
                 data = json.loads(ast.literal_eval(response.content))
 
-                if Isracard.is_valid_search_results(data):
-                    used_spelling = Isracard.used_spelling(data)
+                if Isracard.__is_valid_search_results(data):
+                    used_spelling = Isracard.__used_spelling(data)
                     item = {'UsedSpelling': used_spelling}
                     if used_spelling:
                         item['Suggested'] = data['SearchResults']['spelling']['correctedQuery'].encode('utf-8')
-                        print str.format('Corrected to {0}', search_word)
                     else:
                         item['Suggested'] = None
                     item['Items'] = data['SearchResults']['items']
 
                     items.append(item)
-                    print str.format('Found {0} items on page {1}', len(data['SearchResults']['items']), page_number)
                 else:
                     no_more_results = True
 
@@ -76,10 +74,8 @@ class Isracard(object):
         return items
 
     @staticmethod
-    def test():
-        user_input = raw_input('Search:')
-
-        items = Isracard.get_items_by_search_word(user_input)
+    def get_coupons_by_input(user_input):
+        items = Isracard.__get_items_by_search_word(user_input)
 
         filtered = 0
         for page_items in items:
@@ -88,21 +84,25 @@ class Isracard(object):
                 title = Isracard.normalize_text(item['title']).encode('utf-8')
                 link = Isracard.normalize_text(item['link']).encode('utf-8')
 
+                forbidden_postfix = 'ההטבה הסתיימה'
+                user_input_in_search_results = user_input in title or user_input in description
+
                 if page_items['UsedSpelling']:
-                    if (page_items['Suggested'] in title) or (page_items['Suggested'] in description) or (user_input in title) or (user_input in description):
-                        print 'Description: ' + description
-                        print 'Title: ' + title
-                        print 'Link: ' + link
-                        print 'Used spelling: ' + str(page_items['UsedSpelling'])
-                        print 'Suggested word: ' + str(page_items['Suggested'])
-                        print '---'
+                    suggested_in_search_results = page_items['Suggested'] in title or page_items['Suggested'] in description
+
+                    if (forbidden_postfix not in title) and (suggested_in_search_results or user_input_in_search_results):
+                        # print 'Description: ' + description
+                        # print 'Title: ' + title
+                        # print 'Link: ' + link
+                        # print 'Used spelling: ' + str(page_items['UsedSpelling'])
+                        # print 'Suggested word: ' + str(page_items['Suggested'])
+                        # print '---'
                         filtered += 1
                 else:
-                    if user_input in title or user_input in description:
-                        print 'Description: ' + description
-                        print 'Title: ' + title
-                        print 'Link: ' + link
-                        print '---'
+                    if (forbidden_postfix not in title) and user_input_in_search_results:
+                        # print 'Description: ' + description
+                        # print 'Title: ' + title
+                        # print 'Link: ' + link
+                        # print '---'
                         filtered += 1
 
-        print str.format('Found {0} results', filtered)
