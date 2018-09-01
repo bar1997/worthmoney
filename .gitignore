@@ -4,6 +4,8 @@
 # User-specific stuff
 .idea/
 
+Client/node_modules/
+
 *.pyc
 # Generated files
 .idea/**/contentModel.xml
