@@ -5,8 +5,9 @@ from abc import ABCMeta, abstractmethod
 class CouponSite(object):
     __metaclass__ = ABCMeta
 
-    def __init__(self, search_url):
+    def __init__(self, corporation, search_url):
         self._coupons = []
+        self._corporation = corporation
         self._search_word_url = search_url
 
     @abstractmethod

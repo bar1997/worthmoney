@@ -16,14 +16,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit()
   {
-    this.networkService.example().subscribe(response=>
+    this.networkService.getCouponsFromSelectedCorporations().subscribe(response=>
     {
         console.log(response);
     });
-
-    this.networkService.getHeverInfo().subscribe(response=>
-      {
-          console.log(response);
-      });
   }
 }

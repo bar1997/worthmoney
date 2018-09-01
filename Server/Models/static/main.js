@@ -122,10 +122,7 @@ var AppComponent = /** @class */ (function () {
         this.title = 'Awesome website';
     }
     AppComponent.prototype.ngOnInit = function () {
-        this.networkService.example().subscribe(function (response) {
-            console.log(response);
-        });
-        this.networkService.getHeverInfo().subscribe(function (response) {
+        this.networkService.getCouponsFromSelectedCorporations().subscribe(function (response) {
             console.log(response);
         });
     };
@@ -229,14 +226,10 @@ var NetworkService = /** @class */ (function () {
         this.HEADERS = new _angular_common_http__WEBPACK_IMPORTED_MODULE_1__["HttpHeaders"]({ 'Content-Type': 'application/json',
             'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE, PUT' });
     }
-    NetworkService.prototype.example = function () {
-        var body = { a: 'a', b: 'c' };
-        return this.http.post(this.SERVER_URL + 'Example/GetExampleInfo', JSON.stringify(body), { headers: this.HEADERS });
-    };
-    ;
-    NetworkService.prototype.getHeverInfo = function () {
-        var body = {};
-        return this.http.post(this.SERVER_URL + 'Hever/GetHeverInfo', JSON.stringify(body), { headers: this.HEADERS });
+    NetworkService.prototype.getCouponsFromSelectedCorporations = function () {
+        var corporations = ['Isracard', 'AmericanExpress'];
+        var body = { UserInput: 'יס פלנט', Corporations: corporations };
+        return this.http.post(this.SERVER_URL + 'Coupons/GetCouponsFromSelectedCorporations', JSON.stringify(body), { headers: this.HEADERS });
     };
     ;
     NetworkService = __decorate([

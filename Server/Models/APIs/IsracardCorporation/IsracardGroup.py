@@ -12,8 +12,8 @@ from Coupon import Coupon
 class IsracardGroup(CouponSite):
     __metaclass__ = ABCMeta
 
-    def __init__(self, search_url, forbidden_keywords):
-        super(IsracardGroup, self).__init__(search_url)
+    def __init__(self, corporation, search_url, forbidden_keywords):
+        super(IsracardGroup, self).__init__(corporation, search_url)
         self.__forbidden_keywords = forbidden_keywords
 
     def get_coupons_by_word(self, word):
@@ -39,10 +39,10 @@ class IsracardGroup(CouponSite):
 
                         if (forbidden_keyword not in title) and (
                                 suggested_in_search_results or user_input_in_search_results):
-                            coupons.append(Coupon(title, description, link))
+                            coupons.append(Coupon(title, description, link, self._corporation))
                     else:
                         if (forbidden_keyword not in title) and user_input_in_search_results:
-                            coupons.append(Coupon(title, description, link))
+                            coupons.append(Coupon(title, description, link, self._corporation))
         return coupons
 
     @staticmethod

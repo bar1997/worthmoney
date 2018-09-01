@@ -16,7 +16,7 @@ class CouponsProvider (object):
         return coupons
 
     @staticmethod
-    def get_coupons(word):
+    def __get_coupons(word):
         corporations = list()
         corporations.append(AmericanExpress())
         corporations.append(Isracard())
@@ -24,3 +24,18 @@ class CouponsProvider (object):
         coupons = CouponsProvider.__get_coupons_from_corporations(corporations, word)
 
         return coupons
+
+    @staticmethod
+    def get_coupons(word):
+        return CouponsProvider.__get_coupons(word)
+
+    @staticmethod
+    def get_coupons_as_json(word, selected_corporations):
+        coupons = CouponsProvider.__get_coupons(word)
+        results = list()
+
+        for coupon in coupons:
+            if coupon.get_corporation() in selected_corporations:
+                results.append(coupon.to_json())
+
+        return results

@@ -1,10 +1,9 @@
-from Configurations.WebConfigurations import WebConfigurations
 from flask import Flask, send_file
 
-# Blueprints
-from APIs.Hever import BLUEPRINT as HEVER_BLUEPRINT
-from APIs.Example import BLUEPRINT as EXAMPLE_BLUEPRINT
-
+from Configurations.WebConfigurations import WebConfigurations
+from Models.APIs.Fingerprints.AmericanExpressFingerprint import BLUEPRINT as AMERICAN_EXPRESS_BLUEPRINT
+from Models.APIs.Fingerprints.IsracardFingerprint import BLUEPRINT as ISRACARD_BLUEPRINT
+from Models.APIs.Fingerprints.CouponsFingerprint import BLUEPRINT as COUPONS_BLUEPRINT
 
 class Server (object):
     __APP = Flask(__name__)
@@ -34,8 +33,9 @@ class Server (object):
 
     @staticmethod
     def initialize_blueprints():
-        Server.__APP.register_blueprint(HEVER_BLUEPRINT)
-        Server.__APP.register_blueprint(EXAMPLE_BLUEPRINT)
+        Server.__APP.register_blueprint(ISRACARD_BLUEPRINT)
+        Server.__APP.register_blueprint(AMERICAN_EXPRESS_BLUEPRINT)
+        Server.__APP.register_blueprint(COUPONS_BLUEPRINT)
 
     @staticmethod
     def start(server_port):

@@ -18,15 +18,10 @@ export class NetworkService {
   {
   }
 
-  example(): Observable<Response>
+  getCouponsFromSelectedCorporations(): Observable<Response>
   {
-    let body = {a: 'a', b: 'c'};
-    return this.http.post<Response>(this.SERVER_URL + 'Example/GetExampleInfo', JSON.stringify(body), {headers: this.HEADERS});
-  };
-
-  getHeverInfo(): Observable<Response>
-  {
-    let body = { };
-    return this.http.post<Response>(this.SERVER_URL + 'Hever/GetHeverInfo', JSON.stringify(body), {headers: this.HEADERS});
+    let corporations = ['Isracard', 'AmericanExpress'];
+    let body = {UserInput: 'יס פלנט', Corporations: corporations};
+    return this.http.post<Response>(this.SERVER_URL + 'Coupons/GetCouponsFromSelectedCorporations', JSON.stringify(body), {headers: this.HEADERS});
   };
 }
