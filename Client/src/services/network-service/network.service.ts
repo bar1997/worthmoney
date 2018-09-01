@@ -18,10 +18,9 @@ export class NetworkService {
   {
   }
 
-  getCouponsFromSelectedCorporations(): Observable<Response>
+  getCouponsFromSelectedCorporations(corporations, userInput): Observable<Response>
   {
-    let corporations = ['Isracard', 'AmericanExpress'];
-    let body = {UserInput: 'יס פלנט', Corporations: corporations};
+    let body = {UserInput: userInput, Corporations: corporations};
     return this.http.post<Response>(this.SERVER_URL + 'Coupons/GetCouponsFromSelectedCorporations', JSON.stringify(body), {headers: this.HEADERS});
   };
 }
