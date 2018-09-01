@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-
-from Models.APIs.CouponSite import CouponSite
-from abc import ABCMeta, abstractmethod
-from Coupon import Coupon
-
 import json
 import unicodedata
 import ast
 import requests
-from Models.Response import Response
-from flask import Blueprint
+
+from Models.APIs.CouponSite import CouponSite
+from abc import ABCMeta
+from Coupon import Coupon
 
 
 class IsracardGroup(CouponSite):

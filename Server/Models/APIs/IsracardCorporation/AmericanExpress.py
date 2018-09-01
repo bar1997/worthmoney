@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from Models.APIs.IsracardGroup import IsracardGroup
+from Models.APIs.IsracardCorporation.IsracardGroup import IsracardGroup
 from Models.Response import Response
 from flask import Blueprint
 
